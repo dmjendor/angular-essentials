@@ -1,19 +1,34 @@
 <app-header />
 
 <main>
+  <!-- FOR Before angular 17
+    <li *ngFor="let user of users">
+      <app-user [user]="user" (select)="onSelectUser($event)" />
+    </li>
+    -->
   <ul id="users">
+    <!-- Angular 17+ -->
+    @for (user of users; track user.id){
     <li>
-      <app-user [user]="users[0]" (select)="onSelectUser($event)" />
+      <app-user
+        [selected]="user.id === selectedUserId"
+        [user]="user"
+        (select)="onSelectUser($event)"
+      />
     </li>
-    <li>
-      <app-user [user]="users[1]" (select)="onSelectUser($event)" />
-    </li>
-    <li>
-      <app-user [user]="users[2]" (select)="onSelectUser($event)" />
-    </li>
-    <li>
-      <app-user [user]="users[3]" (select)="onSelectUser($event)" />
-    </li>
+    }
   </ul>
-  <app-tasks [name]="selectedUser ? selectedUser.name : ''" />
+  <!-- IF Before angular 17
+  <app-tasks *ngIf="selectedUser.name; else" [name]="selectedUser!.name" />
+  <ng-template #fallback>
+    <p id="fallback">Select a user to see their tasks!</p>
+  </ng-template>
+    -->
+  @if( selectedUser){
+  <app-tasks [userId]="selectedUser.id" [name]="selectedUser.name" />
+  } @else {
+  <p id="fallback">Select a user to see their tasks!</p>
+  }
+  <!-- when using if conditional content, don't need to specify like this.
+    <app-tasks [name]="selectedUser ? selectedUser.name : ''" /> -->
 </main>
