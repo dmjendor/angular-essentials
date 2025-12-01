@@ -3,6 +3,7 @@ import { TaskComponent } from './task/task.component';
 import { DUMMY_TASKS } from '../dummy-tasks';
 import { NewTaskComponent } from './new-task/new-task.component';
 import { type NewTaskData } from './task/task.model';
+import { TasksService } from './tasks.service';
 
 @Component({
   selector: 'app-tasks',
@@ -12,34 +13,29 @@ import { type NewTaskData } from './task/task.model';
   styleUrl: './tasks.component.css',
 })
 export class TasksComponent {
-  isAddingTask = false;
-  onStartAddTask() {
-    this.isAddingTask = true;
-  }
   // @Input() name: string | undefined; // the same as
   @Input({ required: true }) userId!: string;
   @Input({ required: true }) name!: string;
   tasks = DUMMY_TASKS;
 
+  constructor(private tasksService: TasksService) {}
+  // wouldnt do it this way, as you wouldnt want to instantiate
+  // multiple versions of the class
+  // private tasksService = new TasksService();
+
+  isAddingTask = false;
   get selectedUserTasks() {
-    return this.tasks.filter((task) => task.userId === this.userId)!;
+    return this.tasksService.getUserTasks(this.userId);
+  }
+  onStartAddTask() {
+    this.isAddingTask = true;
   }
 
   onCompleteTask(id: string) {
-    this.tasks = this.tasks.filter((task) => task.id !== id);
+    this.tasksService.removeTask(id);
   }
-  onCancelAddTask() {
-    this.isAddingTask = false;
-  }
-  onAddTask(taskData: NewTaskData) {
-    console.log('task', taskData);
-    this.tasks.push({
-      id: new Date().getTime().toString(),
-      userId: this.userId,
-      title: taskData.title,
-      summary: taskData.summary,
-      dueDate: taskData.dueDate,
-    });
+
+  onCloseAddTask() {
     this.isAddingTask = false;
   }
 }
